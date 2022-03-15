@@ -107,7 +107,7 @@ public class PushNotification implements IPushNotification {
     protected int postNotification(Integer notificationId) {
         Log.d(LOGTAG, "Posting notification...");
 
-        final PendingIntent pendingIntent = getCTAPendingIntent();
+        final PendingIntent pendingIntent = NotificationIntentAdapter.createPendingNotificationIntent(mContext, mNotificationProps);;
         //final Notification notification = buildNotification(pendingIntent);
         int id = notificationId != null ? notificationId : 0;
 
@@ -167,11 +167,6 @@ public class PushNotification implements IPushNotification {
 
     protected AppVisibilityListener getIntermediateAppVisibilityListener() {
         return mAppVisibilityListener;
-    }
-
-    protected PendingIntent getCTAPendingIntent() {
-        final Intent cta = new Intent(mContext, ProxyService.class);
-        return NotificationIntentAdapter.createPendingNotificationIntent(mContext, cta, mNotificationProps);
     }
 
     protected Notification buildNotification(PendingIntent intent) {
@@ -323,7 +318,10 @@ public class PushNotification implements IPushNotification {
     }
 
     protected void launchOrResumeApp() {
-        final Intent intent = mAppLaunchHelper.getLaunchIntent(mContext);
-        mContext.startActivity(intent);
+        if (!NotificationIntentAdapter.cannotHandleTrampolineActivity(mContext)) {
+            final Intent intent = mAppLaunchHelper.getLaunchIntent(mContext);
+            mContext.startActivity(intent);
+        }
     }
+
 }
