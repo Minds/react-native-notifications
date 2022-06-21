@@ -71,7 +71,7 @@ public class RNNotificationsPackage implements ReactPackage, AppLifecycleFacade.
 
     @Override
     public void onActivityStarted(Activity activity) {
-        if (InitialNotificationHolder.getInstance().get() == null) {
+        if (InitialNotificationHolder.getInstance().get() == null && !NotificationIntentAdapter.cannotHandleTrampolineActivity(appContext)) {
             callOnOpenedIfNeed(activity);
         }
     }
@@ -104,6 +104,7 @@ public class RNNotificationsPackage implements ReactPackage, AppLifecycleFacade.
                     NotificationIntentAdapter.extractPendingNotificationDataFromIntent(intent) : intent.getExtras();
             final IPushNotification pushNotification = PushNotification.get(appContext, notificationData);
             if (pushNotification != null) {
+                Log.d(LOGTAG, "Calling onOpened for notification: ");
                 pushNotification.onOpened();
             }
         }
