@@ -71,6 +71,7 @@ public class RNNotificationsPackage implements ReactPackage, AppLifecycleFacade.
 
     @Override
     public void onActivityStarted(Activity activity) {
+        Context appContext = mApplication.getApplicationContext();
         if (InitialNotificationHolder.getInstance().get() == null && !NotificationIntentAdapter.cannotHandleTrampolineActivity(appContext)) {
             callOnOpenedIfNeed(activity);
         }
