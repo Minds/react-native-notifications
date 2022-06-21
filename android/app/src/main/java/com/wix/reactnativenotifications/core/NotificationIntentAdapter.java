@@ -16,10 +16,13 @@ public class NotificationIntentAdapter {
     public static PendingIntent createPendingNotificationIntent(Context appContext, PushNotificationProps notification) {
           if (cannotHandleTrampolineActivity(appContext)) {
             Intent mainActivityIntent = appContext.getPackageManager().getLaunchIntentForPackage(appContext.getPackageName());
+            mainActivityIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             mainActivityIntent.putExtra(PUSH_NOTIFICATION_EXTRA_NAME, notification.asBundle());
-            TaskStackBuilder taskStackBuilder = TaskStackBuilder.create(appContext);
-            taskStackBuilder.addNextIntentWithParentStack(mainActivityIntent);
-            return taskStackBuilder.getPendingIntent((int) System.currentTimeMillis(), PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
+            return PendingIntent.getActivity(
+                appContext,
+                (int) System.currentTimeMillis(),
+                mainActivityIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
         } else {
             Intent intent = new Intent(appContext, ProxyService.class);
             intent.putExtra(PUSH_NOTIFICATION_EXTRA_NAME, notification.asBundle());
