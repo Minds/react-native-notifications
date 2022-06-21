@@ -14,7 +14,7 @@ public class NotificationIntentAdapter {
 
     @SuppressLint("UnspecifiedImmutableFlag")
     public static PendingIntent createPendingNotificationIntent(Context appContext, PushNotificationProps notification) {
-          if (cannotHandleTrampolineActivity(appContext)) {
+        if (cannotHandleTrampolineActivity(appContext)) {
             Intent mainActivityIntent = appContext.getPackageManager().getLaunchIntentForPackage(appContext.getPackageName());
             mainActivityIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             mainActivityIntent.putExtra(PUSH_NOTIFICATION_EXTRA_NAME, notification.asBundle());
@@ -41,9 +41,9 @@ public class NotificationIntentAdapter {
     public static boolean canHandleIntent(Intent intent) {
         if (intent != null) {
             Bundle notificationData = intent.getExtras();
-            if (notificationData != null && intent.hasExtra(PUSH_NOTIFICATION_EXTRA_NAME)) {
-                return true;
-            }
+            return notificationData != null &&
+                    (intent.hasExtra(PUSH_NOTIFICATION_EXTRA_NAME) ||
+                            notificationData.getString("google.message_id", null) != null);
         }
 
         return false;
