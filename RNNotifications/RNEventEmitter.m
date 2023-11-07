@@ -6,11 +6,14 @@ RCT_EXPORT_MODULE();
 
 -(NSArray<NSString *> *)supportedEvents {
     return @[RNRegistered,
+             RNRegistrationDenied,
              RNRegistrationFailed,
              RNPushKitRegistered,
-             RNNotificationReceivedForeground,
+             RNNotificationReceived,
+             RNNotificationReceivedBackground,
              RNNotificationOpened,
-             RNPushKitNotificationReceived];
+             RNPushKitNotificationReceived,
+             RNAppNotificationSettingsLinked];
 }
 
 - (instancetype)init {

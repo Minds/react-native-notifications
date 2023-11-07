@@ -4,15 +4,15 @@
 @implementation RNNotificationParser
 
 + (NSDictionary *)parseNotification:(UNNotification *)notification {
-    NSDictionary* notificationDict = @{@"identifier": notification.request.identifier,
-                                   @"payload": [RCTConvert UNNotificationPayload:notification]
-                                   };
-    
-    return notificationDict;
+    return [RCTConvert UNNotificationPayload:notification];
+}
+
++ (NSDictionary *)parseNotificationUserInfo:(NSDictionary *)userInfo withIdentifier:(NSString *)identifier {
+    return [RCTConvert NotificationUserInfo:userInfo withIdentifier:(NSString *)identifier];
 }
 
 + (NSDictionary *)parseNotificationResponse:(UNNotificationResponse *)response {
-    NSDictionary* responseDict = @{@"payload": [RCTConvert UNNotificationPayload:response.notification], @"identifier": response.notification.request.identifier, @"action": [self parseNotificationResponseAction:response]};
+    NSDictionary* responseDict = @{@"notification": [RCTConvert UNNotificationPayload:response.notification], @"identifier": response.notification.request.identifier, @"action": [self parseNotificationResponseAction:response]};
     
     return responseDict;
 }

@@ -1,13 +1,5 @@
 #import "RCTConvert+RNNotifications.h"
 
-
-@implementation RCTConvert (UIUserNotificationActivationMode)
-RCT_ENUM_CONVERTER(UIUserNotificationActivationMode, (@{
-                                                        @"foreground": @(UIUserNotificationActivationModeForeground),
-                                                        @"background": @(UIUserNotificationActivationModeBackground)
-                                                        }), UIUserNotificationActivationModeForeground, integerValue)
-@end
-
 @implementation RCTConvert (UNNotificationActionOptions)
 
 + (UNNotificationActionOptions)UNUserNotificationActionOptions:(id)json {
@@ -63,7 +55,7 @@ RCT_ENUM_CONVERTER(UIUserNotificationActivationMode, (@{
 
 @implementation RCTConvert (UNNotificationRequest)
 
-+ (UNNotificationRequest *)UNNotificationRequest:(id)json withId:(NSString*)notificationId
++ (UNNotificationRequest *)UNNotificationRequest:(id)json withId:(NSNumber*)notificationId
 {
     NSDictionary<NSString *, id> *details = [self NSDictionary:json];
     
@@ -76,7 +68,7 @@ RCT_ENUM_CONVERTER(UIUserNotificationActivationMode, (@{
     if ([RCTConvert BOOL:details[@"silent"]]) {
         content.sound = nil;
     }
-    content.userInfo = [RCTConvert NSDictionary:details[@"userInfo"]] ?: @{};
+    content.userInfo = [RCTConvert NSDictionary:details] ?: @{};
     content.categoryIdentifier = [RCTConvert NSString:details[@"category"]];
     
     NSDate *triggerDate = [RCTConvert NSDate:details[@"fireDate"]];
@@ -92,7 +84,7 @@ RCT_ENUM_CONVERTER(UIUserNotificationActivationMode, (@{
                                                                            repeats:NO];
     }
     
-    return [UNNotificationRequest requestWithIdentifier:notificationId
+    return [UNNotificationRequest requestWithIdentifier:[NSString stringWithFormat:@"%@", notificationId]
                                                 content:content trigger:trigger];
 }
 
@@ -117,11 +109,21 @@ RCT_ENUM_CONVERTER(UIUserNotificationActivationMode, (@{
     formattedNotification[@"body"] = RCTNullIfNil(content.body);
     formattedNotification[@"category"] = RCTNullIfNil(content.categoryIdentifier);
     formattedNotification[@"thread"] = RCTNullIfNil(content.threadIdentifier);
-    [formattedNotification addEntriesFromDictionary:RCTNullIfNil(RCTJSONClean(content.userInfo))];
+    
+    [formattedNotification addEntriesFromDictionary:[NSDictionary dictionaryWithDictionary:RCTNullIfNil(RCTJSONClean(content.userInfo))]];
     
     return formattedNotification;
 }
 
+@end
+
+@implementation RCTConvert (NSDictionary)
++ (NSDictionary *)NotificationUserInfo:(NSDictionary *)userInfo withIdentifier:(NSString *)identifier {
+    NSMutableDictionary *formattedNotification = [NSMutableDictionary dictionary];
+    formattedNotification[@"identifier"] = identifier;
+    [formattedNotification addEntriesFromDictionary:[NSDictionary dictionaryWithDictionary:RCTNullIfNil(RCTJSONClean(userInfo))]];
+    return formattedNotification;
+}
 @end
 
 @implementation RCTConvert (UNNotificationPresentationOptions)
@@ -139,6 +141,20 @@ RCT_ENUM_CONVERTER(UIUserNotificationActivationMode, (@{
     }
     
     return options;
+}
+
+@end
+
+@implementation RCTConvert (UIBackgroundFetchResult)
+
++ (UIBackgroundFetchResult)UIBackgroundFetchResult:(NSString *)backgroundFetchResult {
+    UIBackgroundFetchResult result = UIBackgroundFetchResultNoData;
+    if ([@"newData" isEqualToString:backgroundFetchResult]) {
+        result = UIBackgroundFetchResultNewData;
+    } else if ([@"failed" isEqualToString:backgroundFetchResult]) {
+        result = UIBackgroundFetchResultFailed;
+    }
+    return result;
 }
 
 @end

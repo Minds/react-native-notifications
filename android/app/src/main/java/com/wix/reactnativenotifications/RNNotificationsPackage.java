@@ -2,21 +2,19 @@ package com.wix.reactnativenotifications;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.content.Context;
 
 import com.facebook.react.ReactPackage;
-import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.uimanager.ViewManager;
 import com.google.firebase.FirebaseApp;
 import com.wix.reactnativenotifications.core.AppLifecycleFacade;
 import com.wix.reactnativenotifications.core.AppLifecycleFacadeHolder;
-import com.wix.reactnativenotifications.core.NotificationIntentAdapter;
 import com.wix.reactnativenotifications.core.InitialNotificationHolder;
+import com.wix.reactnativenotifications.core.NotificationIntentAdapter;
 import com.wix.reactnativenotifications.core.notification.IPushNotification;
 import com.wix.reactnativenotifications.core.notification.PushNotification;
 import com.wix.reactnativenotifications.core.notificationdrawer.IPushNotificationsDrawer;
@@ -25,9 +23,6 @@ import com.wix.reactnativenotifications.core.notificationdrawer.PushNotification
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-
-import static com.wix.reactnativenotifications.Defs.LOGTAG;
 
 public class RNNotificationsPackage implements ReactPackage, AppLifecycleFacade.AppVisibilityListener, Application.ActivityLifecycleCallbacks {
 
@@ -72,7 +67,7 @@ public class RNNotificationsPackage implements ReactPackage, AppLifecycleFacade.
     @Override
     public void onActivityStarted(Activity activity) {
         Context appContext = mApplication.getApplicationContext();
-        if (InitialNotificationHolder.getInstance().get() == null && !NotificationIntentAdapter.cannotHandleTrampolineActivity(appContext)) {
+        if (InitialNotificationHolder.getInstance().get() == null && NotificationIntentAdapter.canHandleTrampolineActivity(appContext)) {
             callOnOpenedIfNeed(activity);
         }
     }
@@ -101,12 +96,14 @@ public class RNNotificationsPackage implements ReactPackage, AppLifecycleFacade.
         Intent intent = activity.getIntent();
         if (NotificationIntentAdapter.canHandleIntent(intent)) {
             Context appContext = mApplication.getApplicationContext();
-            Bundle notificationData = NotificationIntentAdapter.cannotHandleTrampolineActivity(appContext) ?
+            Bundle notificationData = !NotificationIntentAdapter.canHandleTrampolineActivity(appContext) ?
                     NotificationIntentAdapter.extractPendingNotificationDataFromIntent(intent) : intent.getExtras();
             final IPushNotification pushNotification = PushNotification.get(appContext, notificationData);
             if (pushNotification != null) {
-                Log.d(LOGTAG, "Calling onOpened for notification: ");
                 pushNotification.onOpened();
+                // Erase notification intent after using it, to avoid looping with the same notification
+                // in case the app is moved to background and opened again
+                activity.setIntent(new Intent());
             }
         }
     }

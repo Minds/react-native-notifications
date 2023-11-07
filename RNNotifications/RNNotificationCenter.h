@@ -10,19 +10,21 @@ typedef void (^RCTPromiseRejectBlock)(NSString *code, NSString *message, NSError
 
 - (void)isRegisteredForRemoteNotifications:(RCTPromiseResolveBlock)resolve;
 
-- (void)requestPermissionsWithCategories:(NSArray *)json;
+- (void)requestPermissions:(NSDictionary *)options;
+
+- (void)setCategories:(NSArray *)json;
 
 - (void)checkPermissions:(RCTPromiseResolveBlock)resolve;
 
-- (void)sendLocalNotification:(NSDictionary *)notification withId:(NSString *)notificationId;
+- (void)postLocalNotification:(NSDictionary *)notification withId:(NSNumber *)notificationId;
 
-- (void)cancelLocalNotification:(NSString *)notificationId;
+- (void)cancelLocalNotification:(NSNumber *)notificationId;
 
 - (void)removeAllDeliveredNotifications;
 
 - (void)removeDeliveredNotifications:(NSArray<NSString *> *)identifiers;
 
-- (void)getDeliveredNotifications:(RCTResponseSenderBlock)callback;
+- (void)getDeliveredNotifications:(RCTPromiseResolveBlock)resolve;
 
 - (void)cancelAllLocalNotifications;
 

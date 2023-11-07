@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.ReactContext;
+import com.wix.reactnativenotifications.BuildConfig;
 
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -14,6 +15,7 @@ public class ReactAppLifecycleFacade implements AppLifecycleFacade {
 
     private ReactContext mReactContext;
     private boolean mIsVisible;
+    private boolean mIsDestroyed;
     private Set<AppVisibilityListener> mListeners = new CopyOnWriteArraySet<>();
 
     public void init(ReactContext reactContext) {
@@ -21,19 +23,19 @@ public class ReactAppLifecycleFacade implements AppLifecycleFacade {
         reactContext.addLifecycleEventListener(new LifecycleEventListener() {
             @Override
             public void onHostResume() {
-                Log.d(LOGTAG, "onHostResume");
+                if(BuildConfig.DEBUG) Log.d(LOGTAG, "onHostResume");
                 switchToVisible();
             }
 
             @Override
             public void onHostPause() {
-                Log.d(LOGTAG, "onHostPause");
+                if(BuildConfig.DEBUG) Log.d(LOGTAG, "onHostPause");
                 switchToInvisible();
             }
 
             @Override
             public void onHostDestroy() {
-                Log.d(LOGTAG, "onHostDestroy");
+                if(BuildConfig.DEBUG) Log.d(LOGTAG, "onHostDestroy");
                 switchToInvisible();
             }
         });
@@ -45,7 +47,11 @@ public class ReactAppLifecycleFacade implements AppLifecycleFacade {
             return false;
         }
 
-        return mReactContext.hasActiveCatalystInstance();
+        try {
+            return mReactContext.hasActiveCatalystInstance();
+        } catch (Exception e) {
+            return mReactContext.hasActiveReactInstance();
+        }
     }
 
     @Override
@@ -64,6 +70,11 @@ public class ReactAppLifecycleFacade implements AppLifecycleFacade {
     }
 
     @Override
+    public boolean isAppDestroyed() {
+        return mIsDestroyed;
+    }
+
+    @Override
     public void addVisibilityListener(AppVisibilityListener listener) {
         mListeners.add(listener);
     }
@@ -75,7 +86,7 @@ public class ReactAppLifecycleFacade implements AppLifecycleFacade {
 
     private synchronized void switchToVisible() {
         if (!mIsVisible) {
-            Log.d(LOGTAG, "App is now visible");
+            if(BuildConfig.DEBUG) Log.d(LOGTAG, "App is now visible");
             mIsVisible = true;
             for (AppVisibilityListener listener : mListeners) {
                 listener.onAppVisible();
@@ -85,11 +96,19 @@ public class ReactAppLifecycleFacade implements AppLifecycleFacade {
 
     private synchronized void switchToInvisible() {
         if (mIsVisible) {
-            Log.d(LOGTAG, "App is now not visible");
+            if(BuildConfig.DEBUG) Log.d(LOGTAG, "App is now not visible");
             mIsVisible = false;
             for (AppVisibilityListener listener : mListeners) {
                 listener.onAppNotVisible();
             }
+        }
+    }
+
+    private synchronized void switchToDestroyed() {
+        switchToInvisible();
+        if (!mIsDestroyed) {
+            if(BuildConfig.DEBUG) Log.d(LOGTAG, "App is now destroyed");
+            mIsDestroyed = true;
         }
     }
 }
