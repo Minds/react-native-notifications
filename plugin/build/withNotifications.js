@@ -12,21 +12,25 @@ function withNotifications(config) {
         const lines = contents.split("\n");
         const importIndex = lines.findIndex((line) => /^#import "AppDelegate.h"/.test(line));
         const initialPropsIndex = lines.findIndex((line) => /self\.initialProps = @{};/.test(line));
-        const didLaunchIndex = lines.findIndex((line) => /\[super application:application didFinishLaunchingWithOptions/.test(line));
+        // change methods to call packatge instead of appplication
+        const didRegisterForRemoteNotificationsIndex = lines.findIndex((line) => /\s*return \[super application:application didRegisterForRemoteNotificationsWithDeviceToken:deviceToken\];/.test(line));
+        if (didRegisterForRemoteNotificationsIndex > -1) {
+            lines[didRegisterForRemoteNotificationsIndex] = "  [RNNotifications didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];";
+        }
+        const didFailToRegisterForRemoteNotificationsIndex = lines.findIndex((line) => /\s*return \[super application:application didFailToRegisterForRemoteNotificationsWithError:error\];/.test(line));
+        if (didFailToRegisterForRemoteNotificationsIndex > -1) {
+            lines[didFailToRegisterForRemoteNotificationsIndex] = "  [RNNotifications didFailToRegisterForRemoteNotificationsWithError:error];";
+        }
+        const didReceiveRemoteNotificationIndex = lines.findIndex((line) => /\s*return \[super application:application didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler\];/.test(line));
+        if (didReceiveRemoteNotificationIndex > -1) {
+            lines[didReceiveRemoteNotificationIndex] = "  [RNNotifications didReceiveBackgroundNotification:userInfo withCompletionHandler:completionHandler];";
+        }
         modResults.contents = [
             ...lines.slice(0, importIndex + 1),
             '#import "RNNotifications.h"',
             ...lines.slice(importIndex + 1, initialPropsIndex + 1),
             "  [RNNotifications startMonitorNotifications];",
-            ...lines.slice(initialPropsIndex + 1, didLaunchIndex + 2),
-            "- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *) deviceToken {",
-            "  [RNNotifications didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];",
-            "}",
-            "",
-            "- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {",
-            "  [RNNotifications didFailToRegisterForRemoteNotificationsWithError:error];",
-            "}",
-            ...lines.slice(didLaunchIndex + 2),
+            ...lines.slice(initialPropsIndex + 1),
         ].join("\n");
         return cfg;
     });
