@@ -30,10 +30,18 @@ RCT_EXPORT_MODULE();
     }
 }
 
+- (dispatch_queue_t)methodQueue {
+    return dispatch_get_main_queue();
+}
+
 #pragma mark - JS interface
 
-RCT_EXPORT_METHOD(requestPermissionsWithCategories:(NSArray *)json) {
-    [_commandsHandler requestPermissionsWithCategories:json];
+RCT_EXPORT_METHOD(requestPermissions:(NSDictionary *)options) {
+    [_commandsHandler requestPermissions:options];
+}
+
+RCT_EXPORT_METHOD(setCategories:(NSArray *)categories) {
+    [_commandsHandler setCategories:categories];
 }
 
 RCT_EXPORT_METHOD(getInitialNotification:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
@@ -48,6 +56,10 @@ RCT_EXPORT_METHOD(finishPresentingNotification:(NSString *)completionKey present
     [_commandsHandler finishPresentingNotification:completionKey presentingOptions:presentingOptions];
 }
 
+RCT_EXPORT_METHOD(finishHandlingBackgroundAction:(NSString *)completionKey backgroundFetchResult:(NSString *)backgroundFetchResult) {
+    [_commandsHandler finishHandlingBackgroundAction:completionKey backgroundFetchResult:backgroundFetchResult];
+}
+
 RCT_EXPORT_METHOD(abandonPermissions) {
     [_commandsHandler abandonPermissions];
 }
@@ -56,19 +68,19 @@ RCT_EXPORT_METHOD(registerPushKit) {
     [_commandsHandler registerPushKit];
 }
 
-RCT_EXPORT_METHOD(getBadgesCount:(RCTResponseSenderBlock)callback) {
-    [_commandsHandler getBadgesCount:callback];
+RCT_EXPORT_METHOD(getBadgeCount:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
+    [_commandsHandler getBadgeCount:resolve reject:reject];
 }
 
-RCT_EXPORT_METHOD(setBadgesCount:(int)count) {
-    [_commandsHandler setBadgesCount:count];
+RCT_EXPORT_METHOD(setBadgeCount:(int)count) {
+    [_commandsHandler setBadgeCount:count];
 }
 
-RCT_EXPORT_METHOD(localNotification:(NSDictionary *)notification withId:(NSString *)notificationId) {
-    [_commandsHandler sendLocalNotification:notification withId:notificationId];
+RCT_EXPORT_METHOD(postLocalNotification:(NSDictionary *)notification withId:(nonnull NSNumber *)notificationId) {
+    [_commandsHandler postLocalNotification:notification withId:notificationId];
 }
 
-RCT_EXPORT_METHOD(cancelLocalNotification:(NSString *)notificationId) {
+RCT_EXPORT_METHOD(cancelLocalNotification:(nonnull NSNumber *)notificationId) {
     [_commandsHandler cancelLocalNotification:notificationId];
 }
 
@@ -95,8 +107,8 @@ RCT_EXPORT_METHOD(removeDeliveredNotifications:(NSArray<NSString *> *)identifier
     [_commandsHandler removeDeliveredNotifications:identifiers];
 }
 
-RCT_EXPORT_METHOD(getDeliveredNotifications:(RCTResponseSenderBlock)callback) {
-    [_commandsHandler getDeliveredNotifications:callback];
+RCT_EXPORT_METHOD(getDeliveredNotifications:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
+    [_commandsHandler getDeliveredNotifications:resolve reject:reject];
 }
 
 #endif

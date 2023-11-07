@@ -13,12 +13,18 @@
     return self;
 }
 
-- (void)requestPermissionsWithCategories:(NSArray *)json {
-    [_notificationCenter requestPermissionsWithCategories:json];
+- (void)requestPermissions:(NSDictionary *)options {
+    [_notificationCenter requestPermissions:options];
+}
+
+- (void)setCategories:(NSArray *)categories {
+    [_notificationCenter setCategories:categories];
 }
 
 - (void)getInitialNotification:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
-    resolve([[RNNotificationsStore sharedInstance] initialNotification]);
+  NSDictionary* initialNotification = [[RNNotificationsStore sharedInstance] initialNotification];
+  [[RNNotificationsStore sharedInstance] setInitialNotification:nil];
+  resolve(initialNotification);
 }
 
 - (void)finishHandlingAction:(NSString *)completionKey {
@@ -29,6 +35,10 @@
     [[RNNotificationsStore sharedInstance] completePresentation:completionKey withPresentationOptions:[RCTConvert UNNotificationPresentationOptions:presentingOptions]];
 }
 
+- (void)finishHandlingBackgroundAction:(NSString *)completionKey backgroundFetchResult:(NSString *)backgroundFetchResult {
+    [[RNNotificationsStore sharedInstance] completeBackgroundAction:completionKey withBackgroundFetchResult:[RCTConvert UIBackgroundFetchResult:backgroundFetchResult]];
+}
+
 - (void)abandonPermissions {
     [[UIApplication sharedApplication] unregisterForRemoteNotifications];
 }
@@ -37,20 +47,22 @@
     [RNNotifications startMonitorPushKitNotifications];
 }
 
-- (void)getBadgesCount:(RCTResponseSenderBlock)callback {
+- (void)getBadgeCount:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
     NSInteger count = [UIApplication sharedApplication].applicationIconBadgeNumber;
-    callback(@[ [NSNumber numberWithInteger:count] ]);
+    resolve([NSNumber numberWithInteger:count]);
 }
 
-- (void)setBadgesCount:(int)count {
-    [[UIApplication sharedApplication] setApplicationIconBadgeNumber:count];
+- (void)setBadgeCount:(int)count {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[UIApplication sharedApplication] setApplicationIconBadgeNumber:count];
+    });
 }
 
-- (void)sendLocalNotification:(NSDictionary *)notification withId:(NSString *)notificationId {
-    [_notificationCenter sendLocalNotification:notification withId:notificationId];
+- (void)postLocalNotification:(NSDictionary *)notification withId:(NSNumber *)notificationId {
+    [_notificationCenter postLocalNotification:notification withId:notificationId];
 }
 
-- (void)cancelLocalNotification:(NSString *)notificationId {
+- (void)cancelLocalNotification:(NSNumber *)notificationId {
     [_notificationCenter cancelLocalNotification:notificationId];
 }
 
@@ -74,8 +86,8 @@
     [_notificationCenter removeDeliveredNotifications:identifiers];
 }
 
-- (void)getDeliveredNotifications:(RCTResponseSenderBlock)callback {
-    [_notificationCenter getDeliveredNotifications:callback];
+- (void)getDeliveredNotifications:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
+    [_notificationCenter getDeliveredNotifications:resolve];
 }
 
 @end

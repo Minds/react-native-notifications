@@ -10,7 +10,7 @@
 @end
 
 @interface RCTConvert (UNNotificationRequest)
-+ (UNNotificationRequest *)UNNotificationRequest:(id)json withId:(NSString*)notificationId;
++ (UNNotificationRequest *)UNNotificationRequest:(id)json withId:(NSNumber*)notificationId;
 @end
 
 @interface RCTConvert (UNNotification)
@@ -19,4 +19,12 @@
 
 @interface RCTConvert (UNNotificationPresentationOptions)
 + (UNNotificationPresentationOptions)UNNotificationPresentationOptions:(id)json;
+@end
+
+@interface RCTConvert (UIBackgroundFetchResult)
++ (UIBackgroundFetchResult)UIBackgroundFetchResult:(NSString *)result;
+@end
+
+@interface RCTConvert (NSDictionary)
++ (NSDictionary *)NotificationUserInfo:(NSDictionary *)userInfo withIdentifier:(NSString *)identifier;
 @end
