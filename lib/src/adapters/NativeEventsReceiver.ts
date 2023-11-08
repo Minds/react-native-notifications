@@ -1,3 +1,4 @@
+//@ts-ignore
 import { NativeModules, NativeEventEmitter, EventEmitter, EmitterSubscription } from 'react-native';
 import {
   Registered, RegistrationError, RegisteredPushKit, NotificationResponse
