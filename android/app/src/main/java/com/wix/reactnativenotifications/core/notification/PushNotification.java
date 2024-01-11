@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import java.util.List;
 
 import com.facebook.react.bridge.ReactContext;
 import com.wix.reactnativenotifications.core.AppLaunchHelper;
@@ -73,6 +74,7 @@ public class PushNotification implements IPushNotification {
 
     @Override
     public void onReceived() throws InvalidNotificationException {
+        Log.e(LOGTAG, "onReceived: " + mNotificationProps.toString());
         if (!mAppLifecycleFacade.isAppVisible()) {
             postNotification(null);
             notifyReceivedBackgroundToJS();
@@ -301,7 +303,17 @@ public class PushNotification implements IPushNotification {
     private void initDefaultChannel(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             final NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            if (notificationManager.getNotificationChannels().size() == 0) {
+            List<NotificationChannel> channels = notificationManager.getNotificationChannels();
+            boolean defaultChannelExists = false;
+
+            for (NotificationChannel channel : channels) {
+                if (channel.getId().equals(DEFAULT_CHANNEL_ID)) {
+                    defaultChannelExists = true;
+                    break;
+                }
+            }
+            
+            if (!defaultChannelExists) {
                 NotificationChannel defaultChannel = new NotificationChannel(
                     DEFAULT_CHANNEL_ID,
                     DEFAULT_CHANNEL_NAME,
