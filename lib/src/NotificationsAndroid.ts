@@ -16,6 +16,14 @@ export class NotificationsAndroid {
   }
 
   /**
+   * setBadgeCount
+   * @param count number of the new badge count
+   */
+  public setBadgeCount(count: number) {
+    return this.commands.setBadgeCount(count);
+  }
+
+  /**
   * Refresh FCM token
   */
   public registerRemoteNotifications() {
