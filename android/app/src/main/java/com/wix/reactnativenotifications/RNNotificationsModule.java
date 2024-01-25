@@ -5,7 +5,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.NotificationManagerCompat;
+import androidx.core.app.NotificationManagerCompat;
 import android.util.Log;
 
 import com.facebook.react.bridge.ActivityEventListener;
@@ -28,6 +28,8 @@ import com.wix.reactnativenotifications.core.notification.PushNotificationProps;
 import com.wix.reactnativenotifications.core.notificationdrawer.IPushNotificationsDrawer;
 import com.wix.reactnativenotifications.core.notificationdrawer.PushNotificationsDrawer;
 import com.wix.reactnativenotifications.fcm.FcmInstanceIdRefreshHandlerService;
+
+import me.leolin.shortcutbadger.ShortcutBadger;
 
 import static com.wix.reactnativenotifications.Defs.LOGTAG;
 
@@ -148,5 +150,11 @@ public class RNNotificationsModule extends ReactContextBaseJavaModule implements
         final Intent tokenFetchIntent = new Intent(appContext, FcmInstanceIdRefreshHandlerService.class);
         tokenFetchIntent.putExtra(extraFlag, true);
         FcmInstanceIdRefreshHandlerService.enqueueWork(appContext, tokenFetchIntent);
+    }
+
+    @ReactMethod
+    public void setBadgeCount(int bagdeCount) {
+        final Context appContext = getReactApplicationContext().getApplicationContext();
+        ShortcutBadger.applyCount(appContext, bagdeCount);
     }
 }
