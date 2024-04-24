@@ -26,7 +26,7 @@ public class NotificationIntentAdapter {
                 appContext,
                 (int) System.currentTimeMillis(),
                 mainActivityIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_ONE_SHOT);
         }
     }
 
