@@ -13,24 +13,26 @@ function withApplication(config) {
     const lines = contents.split("\n");
 
     const importIndex = lines.findIndex((line) =>
-      /^import android.app.Application;$/.test(line)
+      /^import android.app.Application/.test(line)
     );
 
     const mainAppIndex = lines.findIndex((line) =>
-      /^public class MainApplication extends Application implements ReactApplication {$/.test(line)
+      /^class MainApplication : Application\(\), ReactApplication {$/.test(line)
     );
 
     const onCreateIndex = lines.findIndex((line) =>
-      /super.onCreate\(\);$/.test(line)
+      /super.onCreate\(\)$/.test(line)
     );
 
     modResults.contents = [
       ...lines.slice(0, importIndex + 1),
       "import com.wix.reactnativenotifications.RNNotificationsPackage;",
       ...lines.slice(importIndex + 1, mainAppIndex + 1),
-      "  public RNNotificationsPackage mRNNotificationsPackage;",
+      "  var mRNNotificationsPackage: RNNotificationsPackage? = null",
+      "      public get",
+      "      private set",
       ...lines.slice(mainAppIndex + 1, onCreateIndex + 1),
-      "    mRNNotificationsPackage = new RNNotificationsPackage(this);",
+      "    mRNNotificationsPackage = RNNotificationsPackage(this);",
       ...lines.slice(onCreateIndex + 1),
     ].join("\n");
 
