@@ -29,6 +29,11 @@ function withApplication(config) {
 }
 function withNotifications(config) {
     config = withApplication(config);
+    config = config_plugins_1.withSettingsGradle(config, (cfg) => {
+        cfg.modResults.contents +=
+            "\ninclude ':react-native-notifications'\nproject(':react-native-notifications').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-notifications/android/app')\n";
+        return cfg;
+    });
     config = config_plugins_1.withAppDelegate(config, (cfg) => {
         const { modResults } = cfg;
         const { contents } = modResults;

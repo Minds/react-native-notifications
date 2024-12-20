@@ -77,12 +77,16 @@ android {
 
 
     flavorDimensions "RNNotifications.reactNativeVersion"
+    flavorDimensions += ["store"]
     productFlavors {
         reactNative59 {
             dimension "RNNotifications.reactNativeVersion"
         }
         reactNative60 {
             dimension "RNNotifications.reactNativeVersion"
+        }
+        play {
+            dimension "store"
         }
     }
 
